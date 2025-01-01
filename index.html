@@ -1,478 +1,182 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MINISO海外信息流广告分析</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <title>MINISO - KOC/KOS Analysis Dashboard</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        
-        body {
-            background: #f0f2f5;
-            color: #1a1a1a;
-            padding: 20px;
-        }
-        
-        .dashboard {
-            max-width: 1600px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .full-width {
-            grid-column: span 3;
-        }
-        
-        .half-width {
-            grid-column: span 2;
-        }
-        
+
+        /* Top Navigation Bar Style */
         .header {
+            background-color: #001529;
+            padding: 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            padding: 0 20px;
+            height: 64px;
         }
-        
-        .title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #1a1a1a;
-        }
-        
-        .chart {
-            width: 100%;
-            height: 300px;
-        }
-        
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .kpi-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .kpi-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #4299e1;
-            margin: 10px 0;
-        }
-        
-        .kpi-label {
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .table th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-        
-        .platform-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+
+        .logo {
             color: white;
-        }
-        
-        .facebook {
-            background: #1877f2;
-        }
-        
-        .instagram {
-            background: #e1306c;
-        }
-        
-        .tiktok {
-            background: #000000;
-        }
-        
-        .material-card {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        
-        .material-thumbnail {
-            width: 80px;
-            height: 80px;
-            background: #ddd;
-            border-radius: 4px;
-            margin-right: 15px;
-        }
-        
-        .material-info {
-            flex-grow: 1;
-        }
-        
-        .material-title {
+            font-size: 1.5em;
             font-weight: bold;
-            margin-bottom: 5px;
         }
-        
-        .material-stats {
-            font-size: 14px;
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-item {
+            margin: 0 10px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            background-color: #1890ff;
+        }
+
+        .nav-link.active {
+            background-color: #1890ff;
+        }
+
+        /* Main Content Area Style */
+        .main-content {
+            flex: 1;
+            margin-top: 64px;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 60px;
+        }
+
+        /* Footer Style */
+        .footer {
+            background-color: #f0f2f5;
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .footer p {
+            margin: 0;
             color: #666;
+        }
+
+        iframe {
+            width: 100%;
+            height: calc(100vh - 144px);
+            border: none;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .nav-item {
+                margin: 5px 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            .main-content {
+                margin-top: 120px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- 广告投放概览 -->
-        <div class="card full-width">
-            <div class="header">
-                <h2 class="title">广告投放概览</h2>
-            </div>
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-value">$150K</div>
-                    <div class="kpi-label">总花费</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value">5.2M</div>
-                    <div class="kpi-label">总曝光量</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value">3.8%</div>
-                    <div class="kpi-label">平均点击率</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value">2.5%</div>
-                    <div class="kpi-label">平均转化率</div>
-                </div>
-            </div>
-            <div id="platformOverview" class="chart"></div>
-        </div>
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">MINISO</div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a class="nav-link active" data-page="overview.html">Overview</a></li>
+                <li class="nav-item"><a class="nav-link" data-page="kos.html">KOS</a></li>
+                <li class="nav-item"><a class="nav-link" data-page="feeds.html">Feeds</a></li>
+                <li class="nav-item"><a class="nav-link" data-page="search.html">Search</a></li>
+                <li class="nav-item"><a class="nav-link" data-page="content.html">Content</a></li>
+                <li class="nav-item"><a class="nav-link" data-page="tagquadrants.html">TagQuadrants</a></li>
+                <li class="nav-item"><a class="nav-link" data-page="tagtree.html">TagTree</a></li>
+            </ul>
+        </nav>
+    </header>
 
-        <!-- 广告表现 -->
-        <div class="card half-width">
-            <div class="header">
-                <h2 class="title">广告表现分析</h2>
-            </div>
-            <div id="adPerformance" class="chart"></div>
-        </div>
+    <main class="main-content">
+        <iframe id="contentFrame" src="overview.html" frameborder="0"></iframe>
+    </main>
 
-        <!-- 热门素材 -->
-        <div class="card">
-            <div class="header">
-                <h2 class="title">热门素材 TOP3</h2>
-            </div>
-            <div class="material-card">
-                <div class="material-thumbnail"></div>
-                <div class="material-info">
-                    <div class="material-title">新品上市视频</div>
-                    <div class="material-stats">
-                        <span class="platform-badge instagram">Instagram</span>
-                        <span>曝光: 1.2M</span>
-                        <span>CTR: 4.5%</span>
-                    </div>
-                </div>
-            </div>
-            <div class="material-card">
-                <div class="material-thumbnail"></div>
-                <div class="material-info">
-                    <div class="material-title">门店探店视频</div>
-                    <div class="material-stats">
-                        <span class="platform-badge tiktok">TikTok</span>
-                        <span>曝光: 980K</span>
-                        <span>CTR: 4.2%</span>
-                    </div>
-                </div>
-            </div>
-            <div class="material-card">
-                <div class="material-thumbnail"></div>
-                <div class="material-info">
-                    <div class="material-title">节日主题图片</div>
-                    <div class="material-stats">
-                        <span class="platform-badge facebook">Facebook</span>
-                        <span>曝光: 850K</span>
-                        <span>CTR: 3.8%</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 人群画像 -->
-        <div class="card full-width">
-            <div class="header">
-                <h2 class="title">受众人群画像</h2>
-            </div>
-            <div id="audienceAnalysis" class="chart"></div>
-        </div>
-
-        <!-- 投放效果 -->
-        <div class="card half-width">
-            <div class="header">
-                <h2 class="title">投放效果</h2>
-            </div>
-            <div id="conversionFunnel" class="chart"></div>
-        </div>
-
-        <!-- 预算分配 -->
-        <div class="card">
-            <div class="header">
-                <h2 class="title">预算分配</h2>
-            </div>
-            <div id="budgetAllocation" class="chart"></div>
-        </div>
-    </div>
+    <footer class="footer">
+        <p>Powered by Leap's AI-Driven Data Analysis Platform</p>
+        <p>&copy; 2024 Leap. All rights reserved. | Data Analysis Platform by Leap Company</p>
+    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            initPlatformOverview();
-            initAdPerformance();
-            initAudienceAnalysis();
-            initConversionFunnel();
-            initBudgetAllocation();
-        });
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentFrame = document.getElementById('contentFrame');
 
-        function initPlatformOverview() {
-            const chart = echarts.init(document.getElementById('platformOverview'));
-            const option = {
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: ['花费', '曝光量', '转化量'],
-                    bottom: 0
-                },
-                xAxis: {
-                    type: 'category',
-                    data: ['Facebook', 'Instagram', 'TikTok']
-                },
-                yAxis: [
-                    {
-                        type: 'value',
-                        name: '花费',
-                        position: 'left',
-                        axisLabel: {
-                            formatter: '${value}K'
-                        }
-                    },
-                    {
-                        type: 'value',
-                        name: '数量',
-                        position: 'right',
-                        axisLabel: {
-                            formatter: '{value}K'
-                        }
-                    }
-                ],
-                series: [
-                    {
-                        name: '花费',
-                        type: 'bar',
-                        data: [50, 60, 40],
-                        yAxisIndex: 0
-                    },
-                    {
-                        name: '曝光量',
-                        type: 'line',
-                        data: [1800, 2000, 1400],
-                        yAxisIndex: 1
-                    },
-                    {
-                        name: '转化量',
-                        type: 'line',
-                        data: [45, 50, 35],
-                        yAxisIndex: 1
-                    }
-                ]
-            };
-            chart.setOption(option);
-        }
-
-        function initAdPerformance() {
-            const chart = echarts.init(document.getElementById('adPerformance'));
-            const option = {
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: ['CTR', '转化率'],
-                    bottom: 0
-                },
-                xAxis: {
-                    type: 'category',
-                    data: ['视频广告', '图片广告', '轮播广告', 'Story广告']
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLabel: {
-                        formatter: '{value}%'
-                    }
-                },
-                series: [
-                    {
-                        name: 'CTR',
-                        type: 'bar',
-                        data: [4.5, 3.8, 3.2, 3.5]
-                    },
-                    {
-                        name: '转化率',
-                        type: 'bar',
-                        data: [2.8, 2.3, 2.0, 2.2]
-                    }
-                ]
-            };
-            chart.setOption(option);
-        }
-
-        function initAudienceAnalysis() {
-            const chart = echarts.init(document.getElementById('audienceAnalysis'));
-            const option = {
-                tooltip: {
-                    trigger: 'item'
-                },
-                legend: {
-                    orient: 'horizontal',
-                    bottom: 0
-                },
-                series: [
-                    {
-                        name: '年龄分布',
-                        type: 'pie',
-                        radius: ['20%', '40%'],
-                        center: ['25%', '50%'],
-                        data: [
-                            { value: 35, name: '18-24岁' },
-                            { value: 40, name: '25-34岁' },
-                            { value: 15, name: '35-44岁' },
-                            { value: 10, name: '45岁以上' }
-                        ]
-                    },
-                    {
-                        name: '性别分布',
-                        type: 'pie',
-                        radius: ['20%', '40%'],
-                        center: ['50%', '50%'],
-                        data: [
-                            { value: 65, name: '女性' },
-                            { value: 35, name: '男性' }
-                        ]
-                    },
-                    {
-                        name: '兴趣分布',
-                        type: 'pie',
-                        radius: ['20%', '40%'],
-                        center: ['75%', '50%'],
-                        data: [
-                            { value: 30, name: '时尚' },
-                            { value: 25, name: '美妆' },
-                            { value: 20, name: '家居' },
-                            { value: 15, name: '数码' },
-                            { value: 10, name: '其他' }
-                        ]
-                    }
-                ]
-            };
-            chart.setOption(option);
-        }
-
-        function initConversionFunnel() {
-            const chart = echarts.init(document.getElementById('conversionFunnel'));
-            const option = {
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{b}: {c}'
-                },
-                series: [
-                    {
-                        name: '转化漏斗',
-                        type: 'funnel',
-                        left: '10%',
-                        width: '80%',
-                        sort: 'descending',
-                        data: [
-                            { value: 5200000, name: '曝光' },
-                            { value: 197600, name: '点击' },
-                            { value: 98800, name: '访问' },
-                            { value: 24700, name: '加购' },
-                            { value: 12350, name: '购买' }
-                        ]
-                    }
-                ]
-            };
-            chart.setOption(option);
-        }
-
-        function initBudgetAllocation() {
-            const chart = echarts.init(document.getElementById('budgetAllocation'));
-            const option = {
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{b}: ${c}K ({d}%)'
-                },
-                legend: {
-                    orient: 'horizontal',
-                    bottom: 0
-                },
-                series: [
-                    {
-                        type: 'pie',
-                        radius: ['40%', '70%'],
-                        avoidLabelOverlap: false,
-                        label: {
-                            show: true,
-                            formatter: '{b}: ${c}K'
-                        },
-                        data: [
-                            { value: 60, name: 'Instagram' },
-                            { value: 50, name: 'Facebook' },
-                            { value: 40, name: 'TikTok' }
-                        ]
-                    }
-                ]
-            };
-            chart.setOption(option);
-        }
-
-        window.addEventListener('resize', function() {
-            const charts = document.querySelectorAll('.chart');
-            charts.forEach(chartDiv => {
-                const chart = echarts.getInstanceByDom(chartDiv);
-                if (chart) {
-                    chart.resize();
-                }
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Load the corresponding page
+                    const page = this.getAttribute('data-page');
+                    contentFrame.src = page;
+                });
             });
         });
     </script>
