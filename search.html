@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINISO海外搜索广告分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: #f0f2f5;
+            color: #1a1a1a;
+            padding: 20px;
+        }
+        
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .full-width {
+            grid-column: span 3;
+        }
+        
+        .half-width {
+            grid-column: span 2;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .kpi-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4299e1;
+            margin: 10px 0;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .rank {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            background: #4299e1;
+            color: white;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- 关键词概览 -->
+        <div class="card full-width">
+            <div class="header">
+                <h2 class="title">关键词概览</h2>
+            </div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-value">5</div>
+                    <div class="kpi-label">关键词类型</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">72%</div>
+                    <div class="kpi-label">平均覆盖率</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">5.00%</div>
+                    <div class="kpi-label">平均点击率</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">2.00%</div>
+                    <div class="kpi-label">平均转化率</div>
+                </div>
+            </div>
+            <div id="keywordOverview" class="chart"></div>
+        </div>
+
+        <!-- 广告表现 -->
+        <div class="card half-width">
+            <div class="header">
+                <h2 class="title">广告表现分析</h2>
+            </div>
+            <div id="adPerformance" class="chart"></div>
+        </div>
+
+        <!-- 热门搜索词 -->
+        <div class="card">
+            <div class="header">
+                <h2 class="title">热门搜索词</h2>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>关键词</th>
+                        <th>搜索量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="rank">1</span></td>
+                        <td>MINISO</td>
+                        <td>100,000</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank">2</span></td>
+                        <td>Homeware</td>
+                        <td>80,000</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank">3</span></td>
+                        <td>Gift Ideas</td>
+                        <td>60,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 投放效果 -->
+        <div class="card full-width">
+            <div class="header">
+                <h2 class="title">投放效果</h2>
+            </div>
+            <div id="conversionMetrics" class="chart"></div>
+        </div>
+
+        <!-- 预算分配 -->
+        <div class="card half-width">
+            <div class="header">
+                <h2 class="title">预算分配</h2>
+            </div>
+            <div id="budgetAllocation" class="chart"></div>
+        </div>
+
+        <!-- ROI分析 -->
+        <div class="card">
+            <div class="header">
+                <h2 class="title">ROI分析</h2>
+            </div>
+            <div id="roiAnalysis" class="chart"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initKeywordOverview();
+            initAdPerformance();
+            initConversionMetrics();
+            initBudgetAllocation();
+            initRoiAnalysis();
+        });
+
+        function initKeywordOverview() {
+            const chart = echarts.init(document.getElementById('keywordOverview'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['覆盖率', '点击率', '转化率'],
+                    bottom: 0
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['品牌词', '品类词', '场景词', '地区词', '竞品词']
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                },
+                series: [
+                    {
+                        name: '覆盖率',
+                        type: 'line',
+                        data: [100, 80, 60, 70, 50],
+                        smooth: true
+                    },
+                    {
+                        name: '点击率',
+                        type: 'line',
+                        data: [5, 5, 5, 5, 5],
+                        smooth: true
+                    },
+                    {
+                        name: '转化率',
+                        type: 'line',
+                        data: [2, 2, 2, 2, 2],
+                        smooth: true
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        function initAdPerformance() {
+            const chart = echarts.init(document.getElementById('adPerformance'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['展示量', '点击量'],
+                    bottom: 0
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['品牌词', '品类词', '场景词', '地区词', '竞品词']
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: function(value) {
+                            return (value / 1000) + 'k';
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '展示量',
+                        type: 'bar',
+                        data: [1000000, 800000, 600000, 700000, 500000]
+                    },
+                    {
+                        name: '点击量',
+                        type: 'bar',
+                        data: [50000, 40000, 30000, 35000, 25000]
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        function initConversionMetrics() {
+            const chart = echarts.init(document.getElementById('conversionMetrics'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['网站流量', '产品点击', '线上销售', '到店人数', '门店销售'],
+                    bottom: 0
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['品牌词', '品类词', '场景词', '地区词', '竞品词']
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: function(value) {
+                            return (value / 1000) + 'k';
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '网站流量',
+                        type: 'line',
+                        data: [10000, 8000, 6000, 7000, 5000],
+                        smooth: true
+                    },
+                    {
+                        name: '产品点击',
+                        type: 'line',
+                        data: [5000, 4000, 3000, 3500, 2500],
+                        smooth: true
+                    },
+                    {
+                        name: '线上销售',
+                        type: 'line',
+                        data: [1000, 800, 600, 700, 500],
+                        smooth: true
+                    },
+                    {
+                        name: '到店人数',
+                        type: 'line',
+                        data: [2000, 1600, 1200, 1400, 1000],
+                        smooth: true
+                    },
+                    {
+                        name: '门店销售',
+                        type: 'line',
+                        data: [50000, 40000, 30000, 35000, 25000],
+                        smooth: true
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        function initBudgetAllocation() {
+            const chart = echarts.init(document.getElementById('budgetAllocation'));
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}% ({d}%)'
+                },
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 0
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            show: true,
+                            formatter: '{b}: {c}%'
+                        },
+                        data: [
+                            { value: 40, name: '品牌词' },
+                            { value: 30, name: '品类词' },
+                            { value: 15, name: '场景词' },
+                            { value: 10, name: '地区词' },
+                            { value: 5, name: '竞品词' }
+                        ]
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        function initRoiAnalysis() {
+            const chart = echarts.init(document.getElementById('roiAnalysis'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['品牌词', '品类词', '场景词', '地区词', '竞品词']
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                },
+                series: [
+                    {
+                        type: 'bar',
+                        data: [25, 26.67, 40, 70, 100],
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: '{c}%'
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        window.addEventListener('resize', function() {
+            const charts = document.querySelectorAll('.chart');
+            charts.forEach(chartDiv => {
+                const chart = echarts.getInstanceByDom(chartDiv);
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINISO KOS营销数据分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background: #f0f2f5;
+            color: #1a1a1a;
+        }
+        
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .full-width {
+            grid-column: span 3;
+        }
+        
+        .half-width {
+            grid-column: span 2;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 300px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .kpi-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4299e1;
+            margin: 10px 0;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .top-videos {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .top-video-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .platform-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: white;
+        }
+        
+        .youtube {
+            background: #ff0000;
+        }
+        
+        .instagram {
+            background: #e1306c;
+        }
+        
+        .tiktok {
+            background: #000000;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: white;
+        }
+        
+        .badge.offline {
+            background: #4299e1;
+        }
+        
+        .badge.online {
+            background: #48bb78;
+        }
+        
+        .plan-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .plan-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .plan-details {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .competitor-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .competitor-metrics {
+            flex: 1;
+        }
+        
+        .competitor-strategy {
+            flex: 1;
+        }
+        
+        .table td strong {
+            color: #4299e1;
+        }
+        
+        .search-ads-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .search-metrics {
+            flex: 1;
+            min-height: 400px;
+        }
+        
+        .keyword-analysis {
+            flex: 1;
+        }
+        
+        .table td:nth-child(3),
+        .table td:nth-child(4),
+        .table td:nth-child(5) {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- KOS总览 -->
+        <div class="card full-width">
+            <div class="header">
+                <h2 class="title">KOS营销总览</h2>
+            </div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-value">600K</div>
+                    <div class="kpi-label">总粉丝量</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">4.3M</div>
+                    <div class="kpi-label">总播放量</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">7.78%</div>
+                    <div class="kpi-label">平均互动率</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">3</div>
+                    <div class="kpi-label">覆盖平台</div>
+                </div>
+            </div>
+            <div id="platformDistribution" class="chart"></div>
+            <div class="top-videos">
+                <h3>热门内容 Top3</h3>
+                <div class="top-video-item">
+                    <span class="platform-badge tiktok">TikTok</span>
+                    <span>MINISO Room Decor Ideas</span>
+                    <span>666,667 平均播放</span>
+                </div>
+                <div class="top-video-item">
+                    <span class="platform-badge youtube">YouTube</span>
+                    <span>MINISO Haul & Store Tour</span>
+                    <span>500,000 平均播放</span>
+                </div>
+                <div class="top-video-item">
+                    <span class="platform-badge instagram">Instagram</span>
+                    <span>MINISO Makeup & Skincare Review</span>
+                    <span>400,000 平均播放</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 平台表现 -->
+        <div class="card half-width">
+            <div class="header">
+                <h2 class="title">平台表现分析</h2>
+            </div>
+            <div id="platformPerformance" class="chart"></div>
+        </div>
+
+        <!-- 粉丝画像 -->
+        <div class="card">
+            <div class="header">
+                <h2 class="title">粉丝画像</h2>
+            </div>
+            <div id="fanDemographics" class="chart"></div>
+        </div>
+
+        <!-- 竞品分析 -->
+        <div class="card full-width">
+            <div class="header">
+                <h2 class="title">竞品分析</h2>
+            </div>
+            <div class="competitor-grid">
+                <div class="competitor-metrics">
+                    <div id="competitor" class="chart"></div>
+                </div>
+                <div class="competitor-strategy">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>品牌</th>
+                                <th>KOS策略重点</th>
+                                <th>粉丝数</th>
+                                <th>总播放量</th>
+                                <th>互动率</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>MINISO</strong></td>
+                                <td>全方位生活方式内容</td>
+                                <td>600,000</td>
+                                <td>4,300,000</td>
+                                <td>7.78%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MUMUSO</strong></td>
+                                <td>产品测评、生活方式内容</td>
+                                <td>150,000</td>
+                                <td>1,200,000</td>
+                                <td>2.50%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DAISO</strong></td>
+                                <td>DIY创意、家居装饰</td>
+                                <td>250,000</td>
+                                <td>1,800,000</td>
+                                <td>3.00%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 转化效果 -->
+        <div class="card half-width">
+            <div class="header">
+                <h2 class="title">转化效果</h2>
+            </div>
+            <div id="conversion" class="chart"></div>
+        </div>
+
+        <!-- 活动参与 -->
+        <div class="card">
+            <div class="header">
+                <h2 class="title">活动参与</h2>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>活动类型</th>
+                        <th>活动名称</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge offline">线下活动</span></td>
+                        <td>MINISO Store Grand Opening</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge online">线上活动</span></td>
+                        <td>#MINISOLife TikTok Challenge</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 未来计划 -->
+        <div class="card full-width">
+            <div class="header">
+                <h2 class="title">未来发展计划</h2>
+            </div>
+            <div class="plan-grid">
+                <div class="plan-card">
+                    <div class="plan-title">扩大KOS团队</div>
+                    <div class="plan-details">每个平台招募2名新KOS</div>
+                </div>
+                <div class="plan-card">
+                    <div class="plan-title">KOS技能提升</div>
+                    <div class="plan-details">提供视频编辑和故事叙述培训</div>
+                </div>
+                <div class="plan-card">
+                    <div class="plan-title">内容优化</div>
+                    <div class="plan-details">开发更具吸引力的内容形式</div>
+                </div>
+                <div class="plan-card">
+                    <div class="plan-title">精准定位</div>
+                    <div class="plan-details">基于数据分析改进受众定位</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initPlatformDistribution();
+            initPlatformPerformance();
+            initFanDemographics();
+            initCompetitor();
+            initConversion();
+        });
+
+        function initPlatformDistribution() {
+            const chart = echarts.init(document.getElementById('platformDistribution'));
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}粉丝 ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center'
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: true,
+                        formatter: '{b}\n{c}粉丝'
+                    },
+                    data: [
+                        { value: 300000, name: 'TikTok' },
+                        { value: 200000, name: 'Instagram' },
+                        { value: 100000, name: 'YouTube' }
+                    ]
+                }]
+            };
+            chart.setOption(option);
+        }
+
+        function initPlatformPerformance() {
+            const chart = echarts.init(document.getElementById('platformPerformance'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['播放量', '互动量', '互动率']
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['YouTube', 'Instagram', 'TikTok']
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '数量',
+                        min: 0,
+                        max: 2000000
+                    },
+                    {
+                        type: 'value',
+                        name: '互动率',
+                        min: 0,
+                        max: 12,
+                        axisLabel: {
+                            formatter: '{value}%'
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: '播放量',
+                        type: 'bar',
+                        data: [1500000, 800000, 2000000]
+                    },
+                    {
+                        name: '互动量',
+                        type: 'bar',
+                        data: [50000, 80000, 200000]
+                    },
+                    {
+                        name: '互动率',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: [3.33, 10.00, 10.00]
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        function initFanDemographics() {
+            const chart = echarts.init(document.getElementById('fanDemographics'));
+            const option = {
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    type: 'scroll',
+                    orient: 'horizontal',
+                    bottom: 0,
+                    left: 'center',
+                    padding: [15, 0]
+                },
+                series: [
+                    {
+                        name: '平台分布',
+                        type: 'pie',
+                        radius: ['20%', '40%'],
+                        center: ['30%', '40%'],
+                        data: [
+                            { value: 300000, name: 'TikTok', itemStyle: { color: '#000000' } },
+                            { value: 200000, name: 'Instagram', itemStyle: { color: '#e1306c' } },
+                            { value: 100000, name: 'YouTube', itemStyle: { color: '#ff0000' } }
+                        ],
+                        label: {
+                            formatter: '{b}: {c}粉丝'
+                        }
+                    },
+                    {
+                        name: '年龄分布',
+                        type: 'pie',
+                        radius: ['20%', '40%'],
+                        center: ['70%', '40%'],
+                        data: [
+                            { value: 300000, name: '13-17岁 (TikTok)', itemStyle: { color: '#87ceeb' } },
+                            { value: 200000, name: '18-24岁 (Instagram)', itemStyle: { color: '#90ee90' } },
+                            { value: 100000, name: '25-34岁 (YouTube)', itemStyle: { color: '#ffa07a' } }
+                        ],
+                        label: {
+                            formatter: '{b}: {d}%'
+                        }
+                    },
+                    {
+                        name: '地区分布',
+                        type: 'pie',
+                        radius: ['20%', '40%'],
+                        center: ['50%', '80%'],
+                        data: [
+                            { value: 300000, name: 'Canada', itemStyle: { color: '#ff7f50' } },
+                            { value: 200000, name: 'United Kingdom', itemStyle: { color: '#6495ed' } },
+                            { value: 100000, name: 'United States', itemStyle: { color: '#dc143c' } }
+                        ],
+                        label: {
+                            formatter: '{b}: {d}%'
+                        }
+                    }
+                ],
+                title: [
+                    {
+                        text: '平台分布',
+                        left: '20%',
+                        top: '5%',
+                        textStyle: {
+                            fontSize: 14
+                        }
+                    },
+                    {
+                        text: '年龄分布',
+                        left: '60%',
+                        top: '5%',
+                        textStyle: {
+                            fontSize: 14
+                        }
+                    },
+                    {
+                        text: '地区分布',
+                        left: '40%',
+                        top: '50%',
+                        textStyle: {
+                            fontSize: 14
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        function initCompetitor() {
+            const chart = echarts.init(document.getElementById('competitor'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['粉丝数', '播放量', '互动率']
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['MINISO', 'MUMUSO', 'DAISO'],
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 0
+                    }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '数量',
+                        min: 0,
+                        max: 5000000,
+                        position: 'left',
+                        axisLabel: {
+                            formatter: function(value) {
+                                return (value / 10000) + 'w';
+                            }
+                        }
+                    },
+                    {
+                        type: 'value',
+                        name: '互动率',
+                        min: 0,
+                        max: 10,
+                        position: 'right',
+                        axisLabel: {
+                            formatter: '{value}%'
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: '粉丝数',
+                        type: 'bar',
+                        data: [600000, 150000, 250000],
+                        itemStyle: {
+                            color: '#4299e1'
+                        }
+                    },
+                    {
+                        name: '播放量',
+                        type: 'bar',
+                        data: [4300000, 1200000, 1800000],
+                        itemStyle: {
+                            color: '#48bb78'
+                        }
+                    },
+                    {
+                        name: '互动率',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: [7.78, 2.50, 3.00],
+                        itemStyle: {
+                            color: '#ed64a6'
+                        },
+                        label: {
+                            show: true,
+                            formatter: '{c}%'
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        function initConversion() {
+            const chart = echarts.init(document.getElementById('conversion'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['网站流量', '产品点击', '线上销售', '到店人数', '门店销售']
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000) {
+                                return (value / 1000) + 'k';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '转化量',
+                        type: 'bar',
+                        data: [10000, 5000, 1000, 2000, 50000],
+                        itemStyle: {
+                            color: '#4299e1'
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: function(params) {
+                                if (params.value >= 1000) {
+                                    return (params.value / 1000) + 'k';
+                                }
+                                return params.value;
+                            }
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        window.addEventListener('resize', function() {
+            const charts = document.querySelectorAll('.chart');
+            charts.forEach(chartDiv => {
+                const chart = echarts.getInstanceByDom(chartDiv);
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
