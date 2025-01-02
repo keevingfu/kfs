@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>同类产品分析热力图</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #e4393c;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        #heatmap {
+            width: 100%;
+            height: 700px;
+        }
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        select {
+            padding: 8px;
+            margin: 0 10px;
+            border: 1px solid #e4393c;
+            border-radius: 4px;
+        }
+        .description {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff9f9;
+            border-radius: 4px;
+            border-left: 4px solid #e4393c;
+        }
+        .video-insights {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .insight-title {
+            color: #e4393c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ffe4e4;
+        }
+
+        .insights-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .insight-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .insight-content {
+            padding: 15px;
+            background: #fff9f9;
+            border-radius: 8px;
+        }
+
+        .insight-content h4 {
+            color: #e4393c;
+            margin-bottom: 10px;
+        }
+
+        .insight-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .insight-content li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .insight-content li:before {
+            content: "•";
+            color: #e4393c;
+            position: absolute;
+            left: 0;
+        }
+
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .video-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ffe4e4;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .video-item:hover {
+            background: #fff9f9;
+            transform: translateX(5px);
+        }
+
+        .rank {
+            background: #e4393c;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .video-item a {
+            flex: 1;
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .views {
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>同类产品市场分析热力图</h1>
+        
+        <div class="controls">
+            <select id="viewMode">
+                <option value="popularity">产品热度</option>
+                <option value="sales">销售表现</option>
+                <option value="satisfaction">顾客满意度</option>
+            </select>
+        </div>
+
+        <div id="heatmap"></div>
+
+        <div class="video-insights">
+            <h3 class="insight-title">数据洞察 & Top Videos</h3>
+            <div class="insights-container">
+                <!-- 产品热度分析 -->
+                <div class="insight-panel" data-mode="popularity">
+                    <div class="insight-content">
+                        <h4>产品热度洞察</h4>
+                        <ul>
+                            <li>美妆工具在学生群体中热度最高</li>
+                            <li>文具用品在开学季节热度激增</li>
+                            <li>玩具手办在社交平台讨论度最高</li>
+                        </ul>
+                    </div>
+                    <div class="video-list">
+                        <div class="video-item">
+                            <span class="rank">1</span>
+                            <a href="https://www.tiktok.com/@miniso/video/1" target="_blank">
+                                美妆新品开箱 #创意彩妆工具 
+                                <span class="views">2.1M views</span>
+                            </a>
+                        </div>
+                        <div class="video-item">
+                            <span class="rank">2</span>
+                            <a href="https://www.tiktok.com/@miniso/video/2" target="_blank">
+                                开学文具大赏 #学习好物
+                                <span class="views">1.8M views</span>
+                            </a>
+                        </div>
+                        <div class="video-item">
+                            <span class="rank">3</span>
+                            <a href="https://www.tiktok.com/@miniso/video/3" target="_blank">
+                                限定手办系列 #动漫周边
+                                <span class="views">1.5M views</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 销售表现分析 -->
+                <div class="insight-panel" data-mode="sales" style="display: none;">
+                    <div class="insight-content">
+                        <h4>销售表现洞察</h4>
+                        <ul>
+                            <li>生活用品类销售增长最快</li>
+                            <li>数码配件在节日季节销量激增</li>
+                            <li>家居饰品受装修季节影响明显</li>
+                        </ul>
+                    </div>
+                    <div class="video-list">
+                        <div class="video-item">
+                            <span class="rank">1</span>
+                            <a href="https://www.tiktok.com/@miniso/video/4" target="_blank">
+                                生活好物推荐 #居家必备
+                                <span class="views">1.9M views</span>
+                            </a>
+                        </div>
+                        <div class="video-item">
+                            <span class="rank">2</span>
+                            <a href="https://www.tiktok.com/@miniso/video/5" target="_blank">
+                                数码配件大促 #数码好物
+                                <span class="views">1.6M views</span>
+                            </a>
+                        </div>
+                        <div class="video-item">
+                            <span class="rank">3</span>
+                            <a href="https://www.tiktok.com/@miniso/video/6" target="_blank">
+                                家居装饰灵感 #家居美学
+                                <span class="views">1.4M views</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 顾客满意度分析 -->
+                <div class="insight-panel" data-mode="satisfaction" style="display: none;">
+                    <div class="insight-content">
+                        <h4>顾客满意度洞察</h4>
+                        <ul>
+                            <li>个护清洁类产品好评率最高</li>
+                            <li>箱包服饰性价比获得认可</li>
+                            <li>创意设计产品深受年轻人喜爱</li>
+                        </ul>
+                    </div>
+                    <div class="video-list">
+                        <div class="video-item">
+                            <span class="rank">1</span>
+                            <a href="https://www.tiktok.com/@miniso/video/7" target="_blank">
+                                个护产品测评 #好物推荐
+                                <span class="views">2.3M views</span>
+                            </a>
+                        </div>
+                        <div class="video-item">
+                            <span class="rank">2</span>
+                            <a href="https://www.tiktok.com/@miniso/video/8" target="_blank">
+                                时尚包包分享 #平价好物
+                                <span class="views">1.7M views</span>
+                            </a>
+                        </div>
+                        <div class="video-item">
+                            <span class="rank">3</span>
+                            <a href="https://www.tiktok.com/@miniso/video/9" target="_blank">
+                                创意新品开箱 #设计灵感
+                                <span class="views">1.5M views</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="description">
+            <h3>热力图说明：</h3>
+            <p>- 颜色越深表示匹配度越高</p>
+            <p>- X轴代表产品类别和卖点</p>
+            <p>- Y轴代表目标人群和应用场景</p>
+            <p>- 鼠标悬停可查看详细数据</p>
+        </div>
+    </div>
+
+    <script>
+        // 产品类别和卖点
+        const products = [
+            '美妆工具', '生活用品', '玩具手办', '数码配件', 
+            '文具用品', '家居饰品', '个护清洁', '箱包服饰',
+            '创意设计', '性价比高', '品质保证', '时尚潮流'
+        ];
+
+        // 人群和场景
+        const scenarios = [
+            '学生党', '上班族', '家庭主妇', '儿童',
+            '送礼场景', '居家生活', '旅行出差', '办公场所',
+            '休闲娱乐', '社交场合'
+        ];
+
+        // 初始化 ECharts
+        const chart = echarts.init(document.getElementById('heatmap'));
+
+        function generateData(mode) {
+            const data = [];
+            for (let i = 0; i < scenarios.length; i++) {
+                for (let j = 0; j < products.length; j++) {
+                    let value;
+                    if (mode === 'popularity') {
+                        value = 50 + Math.random() * 50;
+                    } else if (mode === 'sales') {
+                        value = Math.floor(500 + Math.random() * 500);
+                    } else {
+                        value = 70 + Math.random() * 30;
+                    }
+                    data.push([j, i, value.toFixed(1)]);
+                }
+            }
+            return data;
+        }
+
+        function updateHeatmap(mode) {
+            const option = {
+                tooltip: {
+                    position: 'top',
+                    formatter: function (params) {
+                        return `${scenarios[params.data[1]]} × ${products[params.data[0]]}<br>
+                                指数: ${params.data[2]}`;
+                    }
+                },
+                grid: {
+                    top: '60px',
+                    bottom: '60px',
+                    left: '120px',
+                    right: '60px'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: products,
+                    splitArea: {
+                        show: true
+                    },
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 45
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: scenarios,
+                    splitArea: {
+                        show: true
+                    }
+                },
+                visualMap: {
+                    min: mode === 'sales' ? 500 : 50,
+                    max: mode === 'sales' ? 1000 : 100,
+                    calculable: true,
+                    orient: 'horizontal',
+                    left: 'center',
+                    bottom: '0',
+                    inRange: {
+                        color: ['#fff3f3', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#e4393c']
+                    }
+                },
+                series: [{
+                    name: mode === 'popularity' ? '产品热度' : 
+                          mode === 'sales' ? '销售表现' : '顾客满意度',
+                    type: 'heatmap',
+                    data: generateData(mode),
+                    label: {
+                        show: false
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(228, 57, 60, 0.5)'
+                        }
+                    }
+                }]
+            };
+
+            chart.setOption(option);
+
+            // 更新视频分析面板
+            document.querySelectorAll('.insight-panel').forEach(panel => {
+                panel.style.display = panel.dataset.mode === mode ? 'grid' : 'none';
+            });
+        }
+
+        // 初始化热力图
+        updateHeatmap('popularity');
+
+        // 监听视图模式切换
+        document.getElementById('viewMode').addEventListener('change', (e) => {
+            updateHeatmap(e.target.value);
+        });
+
+        // 响应式调整
+        window.addEventListener('resize', () => {
+            chart.resize();
+        });
+    </script>
+</body>
+</html> 

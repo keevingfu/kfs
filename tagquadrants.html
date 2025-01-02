@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Keyword Analysis Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .matrices-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .matrix-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        h1, h2 {
+            color: #333;
+            margin: 0 0 20px 0;
+        }
+        .matrix {
+            height: 600px;
+        }
+        .legend {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .legend h3 {
+            margin: 0 0 10px 0;
+            color: #666;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Content Keyword Analysis Dashboard</h1>
+            <div class="controls">
+                <select id="platformFilter">
+                    <option value="all">All Platforms</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="tiktok">TikTok</option>
+                </select>
+                <select id="timeFilter">
+                    <option value="7d">Last 7 Days</option>
+                    <option value="30d">Last 30 Days</option>
+                    <option value="90d">Last 90 Days</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="matrices-container">
+            <!-- Interest Generation Matrix -->
+            <div class="matrix-card">
+                <h2>Interest Generation Keywords Matrix</h2>
+                <div id="interestMatrix" class="matrix"></div>
+                <div class="legend">
+                    <h3>Dimension Description</h3>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff7675"></div>
+                        <span>Brand Awareness & Engagement</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #74b9ff"></div>
+                        <span>Emotional Connection & Brand Story</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #55efc4"></div>
+                        <span>Lifestyle & Daily Usage</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffeaa7"></div>
+                        <span>Interaction & Engagement</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversion Matrix -->
+            <div class="matrix-card">
+                <h2>Conversion Keywords Matrix</h2>
+                <div id="conversionMatrix" class="matrix"></div>
+                <div class="legend">
+                    <h3>Dimension Description</h3>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e17055"></div>
+                        <span>Purchase Motivation & Decision</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #0984e3"></div>
+                        <span>User Reviews & Social Proof</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #00b894"></div>
+                        <span>Product Features & USP</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #fdcb6e"></div>
+                        <span>Urgency & Limited Time Offers</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interest Generation Keywords Data
+        const interestKeywords = {
+            awareness: ['Smart Pet Products', 'Pet Health Tech', 'Innovative Pet Care', 'Pet Health Monitoring', 'Smart Litter Box', 'Pet Care Automation'],
+            emotional: ['Sustainable Pet Care', 'Tech-Enabled Pet Care', 'Time-Saving Pet Tech'],
+            lifestyle: ['Modern Pet Parenting', 'Pet-Friendly Home Automation', 'Convenient Pet Care Devices', 'Busy Life Pet Solutions'],
+            interactive: ['Cat Tech & Health', 'Smart Devices for Pet Care', 'Best Tech for Cat Owners']
+        };
+
+        // Conversion Keywords Data
+        const conversionKeywords = {
+            motivation: ['Buy Smart Litter Box', 'Affordable Pet Tech', 'Smart Pet Products Sale'],
+            reviews: ['Smart Litter Box Review', 'Pet Tech Feedback', 'Real User Experience', 'Verified Customer Reviews'],
+            features: ['Cat Health Monitoring', 'Remote Pet Health Tracking', 'Digital Cat Care Solutions', 'Smart Feeding Technology'],
+            urgency: ['Smart Pet Flash Sale', 'Last Chance Deals', 'Limited Time Pet Discounts']
+        };
+
+        // 定义象限位置
+        const quadrants = {
+            Q1: { x: 0.7, y: 0.7 },
+            Q2: { x: -0.7, y: 0.7 },
+            Q3: { x: -0.7, y: -0.7 },
+            Q4: { x: 0.7, y: -0.7 }
+        };
+
+        // 存储当前关键词状态
+        let keywordStates = new Map();
+        let currentMatrix = 'interest'; // 用于跟踪当前活跃矩阵
+
+        // 初始化关键词位置
+        function initializeKeywordPositions() {
+            // 种草矩阵关键词
+            for (let category in interestKeywords) {
+                interestKeywords[category].forEach(keyword => {
+                    if (!keywordStates.has(keyword)) {
+                        keywordStates.set(keyword, {
+                            quadrant: Math.floor(Math.random() * 4) + 1,
+                            matrix: 'interest',
+                            x: Math.random() * 0.4 + quadrants[`Q${Math.floor(Math.random() * 4) + 1}`].x,
+                            y: Math.random() * 0.4 + quadrants[`Q${Math.floor(Math.random() * 4) + 1}`].y
+                        });
+                    }
+                });
+            }
+
+            // 拔草矩阵关键词
+            for (let category in conversionKeywords) {
+                conversionKeywords[category].forEach(keyword => {
+                    if (!keywordStates.has(keyword)) {
+                        keywordStates.set(keyword, {
+                            quadrant: Math.floor(Math.random() * 4) + 1,
+                            matrix: 'conversion',
+                            x: Math.random() * 0.4 + quadrants[`Q${Math.floor(Math.random() * 4) + 1}`].x,
+                            y: Math.random() * 0.4 + quadrants[`Q${Math.floor(Math.random() * 4) + 1}`].y
+                        });
+                    }
+                });
+            }
+        }
+
+        // 自动跃迁函数
+        function autoTransition() {
+            // 随机选择3-5个关键词进行跃迁
+            const numKeywords = Math.floor(Math.random() * 3) + 3; // 3-5个
+            const allKeywords = Array.from(keywordStates.keys());
+            const selectedKeywords = [];
+            
+            // 随机选择关键词
+            while (selectedKeywords.length < numKeywords && allKeywords.length > 0) {
+                const index = Math.floor(Math.random() * allKeywords.length);
+                selectedKeywords.push(allKeywords.splice(index, 1)[0]);
+            }
+
+            // 更新选中关键词的位置
+            selectedKeywords.forEach(keyword => {
+                const state = keywordStates.get(keyword);
+                
+                // 决定是否跨矩阵跃迁（20%概率）
+                if (Math.random() < 0.2) {
+                    state.matrix = state.matrix === 'interest' ? 'conversion' : 'interest';
+                }
+
+                // 更新象限
+                state.quadrant = (state.quadrant % 4) + 1;
+                
+                // 计算新位置
+                const targetQuadrant = quadrants[`Q${state.quadrant}`];
+                state.x = targetQuadrant.x + (Math.random() - 0.5) * 0.4;
+                state.y = targetQuadrant.y + (Math.random() - 0.5) * 0.4;
+                
+                keywordStates.set(keyword, state);
+            });
+
+            // 更新两个矩阵的显示
+            updateMatrixDisplays();
+        }
+
+        // 更新矩阵显示
+        function updateMatrixDisplays() {
+            // 准备种草矩阵数据
+            const interestTrace = {
+                type: 'scatter',
+                mode: 'markers+text',
+                x: [],
+                y: [],
+                text: [],
+                textposition: 'top center',
+                marker: {
+                    size: 12,
+                    color: [],
+                    opacity: 0.8
+                }
+            };
+
+            // 准备拔草矩阵数据
+            const conversionTrace = {
+                type: 'scatter',
+                mode: 'markers+text',
+                x: [],
+                y: [],
+                text: [],
+                textposition: 'top center',
+                marker: {
+                    size: 12,
+                    color: [],
+                    opacity: 0.8
+                }
+            };
+
+            // 分配关键词到对应矩阵
+            keywordStates.forEach((state, keyword) => {
+                const trace = state.matrix === 'interest' ? interestTrace : conversionTrace;
+                trace.x.push(state.x);
+                trace.y.push(state.y);
+                trace.text.push(keyword);
+                trace.marker.color.push(getColorForKeyword(keyword, state.matrix));
+            });
+
+            // 更新两个矩阵
+            const layout = {
+                showlegend: false,
+                xaxis: {
+                    zeroline: true,
+                    showgrid: false,
+                    range: [-1.2, 1.2]
+                },
+                yaxis: {
+                    zeroline: true,
+                    showgrid: false,
+                    range: [-1.2, 1.2]
+                },
+                shapes: [
+                    {
+                        type: 'line',
+                        x0: -1.2,
+                        y0: 0,
+                        x1: 1.2,
+                        y1: 0,
+                        line: { color: '#ddd', width: 1 }
+                    },
+                    {
+                        type: 'line',
+                        x0: 0,
+                        y0: -1.2,
+                        x1: 0,
+                        y1: 1.2,
+                        line: { color: '#ddd', width: 1 }
+                    }
+                ],
+                transition: {
+                    duration: 1000,
+                    easing: 'cubic-in-out'
+                }
+            };
+
+            Plotly.react('interestMatrix', [interestTrace], layout);
+            Plotly.react('conversionMatrix', [conversionTrace], layout);
+        }
+
+        // 获取关键词颜色
+        function getColorForKeyword(keyword, matrix) {
+            const interestColors = ['#ff7675', '#74b9ff', '#55efc4', '#ffeaa7'];
+            const conversionColors = ['#e17055', '#0984e3', '#00b894', '#fdcb6e'];
+            
+            // 根据关键词所属类别返回对应颜色
+            const colors = matrix === 'interest' ? interestColors : conversionColors;
+            // 简单的哈希函数来确定颜色
+            return colors[Math.abs(keyword.length) % colors.length];
+        }
+
+        // 初始化和启动自动跃迁
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeKeywordPositions();
+            updateMatrixDisplays();
+
+            // 每2秒执行一次跃迁
+            setInterval(autoTransition, 2000);
+
+            // 保持响应式调整
+            window.addEventListener('resize', updateMatrixDisplays);
+        });
+    </script>
+</body>
+</html> 

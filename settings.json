@@ -1,0 +1,10 @@
+{
+    "diffEditor.renderSideBySide": true,  // 并排显示
+    "diffEditor.ignoreTrimWhitespace": false,  // 显示空格差异
+    "diffEditor.maxComputationTime": 5000,  // 设置差异计算的最大时间
+    "workbench.editorAssociations": {
+        "*.html": "default"
+    },
+    "files.defaultLanguage": "html",
+    "html.preview.doubleClickToSwitchToEditor": true
+} 
